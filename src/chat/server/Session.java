@@ -10,12 +10,13 @@ public class Session {
 
 	private PrintWriter printWriter;
 
-	public void processConnection(Socket socket, Consumer<String> broadcaster) {
+	public void processConnection(Socket socket, Consumer<String> broadcaster,
+								  Consumer<Session> sessionRemover) {
 
 		try {
 			Scanner scanner = new Scanner(socket.getInputStream());
 			printWriter = new PrintWriter(socket.getOutputStream());
-			while (scanner.hasNext()) {
+			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				System.out.println(line);
 				broadcaster.accept(line);
@@ -23,6 +24,7 @@ public class Session {
 					break;
 				}
 			}
+			sessionRemover.accept(this);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -34,4 +36,5 @@ public class Session {
 		printWriter.println(" > " + line);
 		printWriter.flush();
 	}
+
 }
